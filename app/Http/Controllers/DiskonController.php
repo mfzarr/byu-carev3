@@ -8,6 +8,7 @@ use App\Models\Diskon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Layanan; // Add this line to import Layanan model
 
 
 
@@ -34,10 +35,12 @@ class DiskonController extends Controller
     {
         $kode_diskon = Autocode::code('diskon', 'kode_diskon', 'DSK');
         $barang = Barang::all();
-
+        $layanan = Layanan::all(); // Add this line to get all services
+    
         return view('diskon.create', [
             'kode_diskon' => $kode_diskon,
             'barang' => $barang,
+            'layanan' => $layanan, // Pass layanan to the view
             'title' => 'Tambah Diskon'
         ]);
     }
@@ -50,31 +53,63 @@ class DiskonController extends Controller
         $validated = $request->validate([
             'kode_diskon' => 'required',
             'nama_diskon' => 'required',
-            'min_transaksi' => 'required|numeric|min:0',
+            'tipe_diskon' => 'required|in:barang,layanan',
             'persentase_diskon' => 'required|numeric|min:0|max:100',
-            'max_diskon' => 'required|numeric|min:0',
-            'id_barang' => 'required|exists:barang,id',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
         ], [
             'kode_diskon.required' => 'Kode Diskon harus diisi',
             'nama_diskon.required' => 'Nama Diskon harus diisi',
-            'min_transaksi.required' => 'Minimal Transaksi harus diisi',
+            'tipe_diskon.required' => 'Tipe Diskon harus dipilih',
             'persentase_diskon.required' => 'Persentase Diskon harus diisi',
-            'max_diskon.required' => 'Maksimal Diskon harus diisi',
-            'id_barang.required' => 'Barang harus dipilih',
+            'tanggal_selesai.after_or_equal' => 'Tanggal Selesai harus setelah atau sama dengan Tanggal Mulai',
         ]);
 
+        // Additional validation based on discount type
+        if ($request->tipe_diskon === 'barang') {
+            $request->validate([
+                'min_transaksi' => 'required|numeric|min:0',
+                'max_diskon' => 'required|numeric|min:0',
+                'id_barang' => 'required|exists:barang,id',
+            ], [
+                'min_transaksi.required' => 'Minimal Transaksi harus diisi',
+                'max_diskon.required' => 'Maksimal Diskon harus diisi',
+                'id_barang.required' => 'Barang harus dipilih',
+            ]);
+        } else { // layanan
+            $request->validate([
+                'id_layanan' => 'required|exists:layanan,id',
+            ], [
+                'id_layanan.required' => 'Layanan harus dipilih',
+            ]);
+        }
+
         try {
-            Diskon::create([
+            $diskonData = [
                 'kode_diskon' => $request->kode_diskon,
                 'nama_diskon' => $request->nama_diskon,
-                'min_transaksi' => $request->min_transaksi,
                 'persentase_diskon' => $request->persentase_diskon,
-                'max_diskon' => $request->max_diskon,
-                'id_barang' => $request->id_barang,
+                'tanggal_mulai' => $request->use_date_range ? $request->tanggal_mulai : null,
+                'tanggal_selesai' => $request->use_date_range ? $request->tanggal_selesai : null,
                 'user_id_created' => Auth::user()->id,
                 'user_id_updated' => Auth::user()->id,
                 'updated_at' => now(),
-            ]);
+            ];
+
+            // Add type-specific fields
+            if ($request->tipe_diskon === 'barang') {
+                $diskonData['min_transaksi'] = $request->min_transaksi;
+                $diskonData['max_diskon'] = $request->max_diskon;
+                $diskonData['id_barang'] = $request->id_barang;
+                $diskonData['id_layanan'] = null;
+            } else { // layanan
+                $diskonData['min_transaksi'] = 0; // Default value for layanan
+                $diskonData['max_diskon'] = 0; // Default value for layanan
+                $diskonData['id_barang'] = null;
+                $diskonData['id_layanan'] = $request->id_layanan;
+            }
+
+            Diskon::create($diskonData);
             return redirect()->route('diskon.index')->with('success', 'Diskon berhasil ditambahkan');
         } catch (\Exception $e) {
             return redirect()->route('diskon.index')->with('error', 'Gagal menambahkan diskon: ' . $e->getMessage());
@@ -88,10 +123,20 @@ class DiskonController extends Controller
     {
         $diskon = Diskon::find($id);
         $barang = Barang::all();
+        $layanan = Layanan::all(); // Add this line to get all services
+
+        // Determine the discount type
+        $tipe_diskon = $diskon->id_layanan ? 'layanan' : 'barang';
+        
+        // Check if date range is used
+        $use_date_range = ($diskon->tanggal_mulai !== null || $diskon->tanggal_selesai !== null);
 
         return view('diskon.edit', [
             'diskon' => $diskon,
             'barang' => $barang,
+            'layanan' => $layanan, // Pass layanan to the view
+            'tipe_diskon' => $tipe_diskon, // Pass the discount type
+            'use_date_range' => $use_date_range, // Pass whether date range is used
             'title' => 'Edit Diskon'
         ]);
     }
@@ -101,33 +146,72 @@ class DiskonController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
+        // Validate common fields
+        $rules = [
             'kode_diskon' => 'required',
             'nama_diskon' => 'required',
-            'min_transaksi' => 'required|numeric|min:0|max:100',
             'persentase_diskon' => 'required|numeric|min:0|max:100',
-            'max_diskon' => 'required|numeric|min:0',
-            'id_barang' => 'required|exists:barang,id',
-        ], [
+            'tipe_diskon' => 'required|in:barang,layanan', // Add this to determine discount type
+        ];
+        
+        // Add date range validation if it's used
+        if ($request->has('use_date_range')) {
+            $rules['tanggal_mulai'] = 'required|date';
+            $rules['tanggal_selesai'] = 'required|date|after_or_equal:tanggal_mulai';
+        }
+        
+        $messages = [
             'kode_diskon.required' => 'Kode Diskon harus diisi',
             'nama_diskon.required' => 'Nama Diskon harus diisi',
-            'min_transaksi.required' => 'Minimal Transaksi harus diisi',
             'persentase_diskon.required' => 'Persentase Diskon harus diisi',
-            'max_diskon.required' => 'Maksimal Diskon harus diisi',
-            'id_barang.required' => 'Barang harus dipilih',
-        ]);
+            'tipe_diskon.required' => 'Tipe Diskon harus dipilih',
+            'tanggal_mulai.required' => 'Tanggal Mulai harus diisi jika periode diskon diaktifkan',
+            'tanggal_selesai.required' => 'Tanggal Selesai harus diisi jika periode diskon diaktifkan',
+            'tanggal_selesai.after_or_equal' => 'Tanggal Selesai harus setelah atau sama dengan Tanggal Mulai',
+        ];
+        
+        // Add conditional validation based on discount type
+        if ($request->tipe_diskon == 'barang') {
+            $rules['min_transaksi'] = 'required|numeric|min:0';
+            $rules['max_diskon'] = 'required|numeric|min:0';
+            $rules['id_barang'] = 'required|exists:barang,id';
+            
+            $messages['min_transaksi.required'] = 'Minimal Transaksi harus diisi';
+            $messages['max_diskon.required'] = 'Maksimal Diskon harus diisi';
+            $messages['id_barang.required'] = 'Barang harus dipilih';
+        } else {
+            $rules['id_layanan'] = 'required|exists:layanan,id';
+            $messages['id_layanan.required'] = 'Layanan harus dipilih';
+        }
+        
+        $validated = $request->validate($rules, $messages);
+
         try {
             $diskon = Diskon::find($id);
-            $diskon->update([
+            $diskonData = [
                 'kode_diskon' => $request->kode_diskon,
                 'nama_diskon' => $request->nama_diskon,
-                'min_transaksi' => $request->min_transaksi,
                 'persentase_diskon' => $request->persentase_diskon,
-                'max_diskon' => $request->max_diskon,
-                'id_barang' => $request->id_barang,
+                'tanggal_mulai' => $request->has('use_date_range') ? $request->tanggal_mulai : null,
+                'tanggal_selesai' => $request->has('use_date_range') ? $request->tanggal_selesai : null,
                 'user_id_updated' => Auth::user()->id,
                 'updated_at' => now(),
-            ]);
+            ];
+            
+            // Add type-specific fields
+            if ($request->tipe_diskon == 'barang') {
+                $diskonData['min_transaksi'] = $request->min_transaksi;
+                $diskonData['max_diskon'] = $request->max_diskon;
+                $diskonData['id_barang'] = $request->id_barang;
+                $diskonData['id_layanan'] = null;
+            } else {
+                $diskonData['min_transaksi'] = 0; // Default value for layanan
+                $diskonData['max_diskon'] = 0; // Default value for layanan
+                $diskonData['id_barang'] = null;
+                $diskonData['id_layanan'] = $request->id_layanan;
+            }
+            
+            $diskon->update($diskonData);
             return redirect()->route('diskon.index')->with('success', 'Diskon berhasil diperbarui');
         } catch (\Exception $e) {
             return redirect()->route('diskon.index')->with('error', 'Gagal memperbarui diskon: ' . $e->getMessage());

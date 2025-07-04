@@ -1,4 +1,4 @@
-<x-app-layout :title="'Tambah Pendapatan'">
+<x-app-layout :title="'Tambah Pendapatan Jasa'">
     <div class="container-fluid">
 
         <div class="row">
@@ -33,7 +33,7 @@
                                     id="id_pelanggan" name="id_pelanggan">
                                     <option value="" disabled selected> ==>> Pilih Pelanggan <<== </option>
                                             @foreach ($pelanggan as $v)
-                                    <option value="{{ $v->id }}">{{ $v->nama_pelanggan }}
+                                    <option value="{{ $v->id }}">{{ $v->kode_pelanggan }} - {{ $v->nama_pelanggan }}
                                     </option>
                                     @endforeach
                                 </select>

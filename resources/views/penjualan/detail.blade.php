@@ -327,11 +327,12 @@
                 const harga = parseInt(inputHarga.value) || 0;
                 const total = kuantitas * harga;
                 const idBarang = selectBarang.value;
+                const tglPenjualan = '{{ $penjualan->tgl_penjualan }}'; // Ambil tanggal dari header penjualan
 
                 inputTotal.value = 'Rp. ' + formatNumber(total);
 
                 if (total > 0 && idBarang) {
-                    // Panggil API untuk cek diskon
+                    // Panggil API untuk cek diskon dengan mengirimkan tanggal penjualan
                     fetch('{{ route('penjualan.getDiskon') }}', {
                             method: 'POST',
                             headers: {
@@ -340,7 +341,8 @@
                             },
                             body: JSON.stringify({
                                 id_barang: idBarang,
-                                total: total
+                                total: total,
+                                tgl_penjualan: tglPenjualan
                             })
                         })
                         .then(response => response.json())

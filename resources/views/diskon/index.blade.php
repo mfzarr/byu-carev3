@@ -23,13 +23,13 @@
                         @endif
                         <!-- Akhir alert success -->
 
-                        <!-- Alert success -->
+                        <!-- Alert error -->
                         @if ($message = Session::get('error'))
                             <div class="alert alert-warning">
                                 <p>{{ $message }}</p>
                             </div>
                         @endif
-                        <!-- Akhir alert success -->
+                        <!-- Akhir alert error -->
                         <hr class="mt-0">
                         <table id="responsive-datatable"
                             class="table table-bordered table-bordered dt-responsive nowrap">
@@ -37,10 +37,12 @@
                                 <tr>
                                     <th>Kode Diskon</th>
                                     <th>Nama Diskon</th>
+                                    <th>Tipe</th>
+                                    <th>Item</th>
                                     <th>Minimal Transaksi</th>
                                     <th>Persentase Diskon</th>
                                     <th>Maksimal Diskon</th>
-                                    <th>Barang</th>
+                                    <th>Periode</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -49,10 +51,43 @@
                                     <tr>
                                         <td>{{ $d->kode_diskon }}</td>
                                         <td>{{ $d->nama_diskon }}</td>
-                                        <td>Rp. {{ number_format($d->min_transaksi, 0, ',', '.') }}</td>
+                                        <td>
+                                            @if($d->id_layanan)
+                                                <span>Layanan</span>
+                                            @else
+                                                <span>Barang</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($d->id_layanan)
+                                                {{ $d->layanan->nama_layanan ?? 'Tidak ada' }}
+                                            @else
+                                                {{ $d->barang->nama_barang ?? 'Tidak ada' }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($d->min_transaksi)
+                                                Rp. {{ number_format($d->min_transaksi, 0, ',', '.') }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td>{{ $d->persentase_diskon }} %</td>
-                                        <td>Rp. {{ number_format($d->max_diskon, 0, ',', '.') }}</td>
-                                        <td>{{ $d->barang->nama_barang }}</td>
+                                        <td>
+                                            @if($d->max_diskon)
+                                                Rp. {{ number_format($d->max_diskon, 0, ',', '.') }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($d->tanggal_mulai && $d->tanggal_selesai)
+                                                {{ date('d/m/Y', strtotime($d->tanggal_mulai)) }} - 
+                                                {{ date('d/m/Y', strtotime($d->tanggal_selesai)) }}
+                                            @else
+                                                Tidak ada periode
+                                            @endif
+                                        </td>
                                         <td>
                                             <a href="{{ route('diskon.edit', $d->id) }}"
                                                 class="btn btn-success btn-circle">
@@ -72,10 +107,12 @@
                                 <tr>
                                     <th>Kode Diskon</th>
                                     <th>Nama Diskon</th>
+                                    <th>Tipe</th>
+                                    <th>Item</th>
                                     <th>Minimal Transaksi</th>
                                     <th>Persentase Diskon</th>
                                     <th>Maksimal Diskon</th>
-                                    <th>Barang</th>
+                                    <th>Periode</th>
                                     <th>Aksi</th>
                                 </tr>
                             </tfoot>

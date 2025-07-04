@@ -62,12 +62,12 @@ class Jurnal extends Model
     public static function viewakunbukubesar()
     {
         // periode memiliki format YYYY-MM
-        $sql = "   SELECT b.id, b.nama_akun
-                    FROM jurnal a JOIN coa b
-                    ON (a.id_coa=b.id)
-                    GROUP BY b.id, b.nama_akun
-                    ORDER BY 2 ASC
-                ";
+        $sql = "   SELECT b.id, b.nama_akun, b.kode_akun
+                FROM jurnal a JOIN coa b
+                ON (a.id_coa=b.id)
+                GROUP BY b.id, b.nama_akun, b.kode_akun
+                ORDER BY 2 ASC
+            ";
         $list = DB::select($sql);
         return $list;
     }
@@ -191,7 +191,7 @@ class Jurnal extends Model
             ->select('a.nama_akun', DB::raw('COALESCE(SUM(b.nominal), 0) AS nominal'))
             ->where('a.kode_akun', 'LIKE', $akun . '%')
             ->groupBy('a.id', 'a.nama_akun')
-            ->orderBy('a.kode_akun')
+            ->orderBy('a.id')
             ->get();
     }
 

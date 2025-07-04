@@ -142,7 +142,7 @@
                                     <td>
                                         <a onclick="deleteConfirm(this); return false;" href="#"
                                             data-id="{{ $p->id }}"
-                                            data-barang="{{ $p->nama_barang }} - {{ $p->kuantitas }} - Rp. {{ number_format($p->harga_satuan, 2, ',', '.') }}"
+                                            data-barang="{{ $p->nama_barang }} - {{ $p->kuantitas }} - Rp. {{ number_format($p->harga_satuan, 0, ',', '.') }}"
                                             class="btn btn-danger btn-circle">
                                             Hapus
                                         </a>
@@ -156,7 +156,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="4">Total Pembelian</td>
-                                <td align="right">Rp. {{ number_format($total, 2, ',', '.') }}</td>
+                                <td align="right">Rp. {{ number_format($total, 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
                     </table>

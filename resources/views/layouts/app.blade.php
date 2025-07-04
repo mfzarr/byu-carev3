@@ -125,7 +125,7 @@
                         @elseif (Request::url() == route('penjualan.index'))
                             Penjualan Produk
                         @elseif (Request::url() == route('pendapatan.index'))
-                            Pendapatan
+                            Pendapatan Jasa
                         @elseif (Request::url() == route('pengeluaran.index'))
                             Pengeluaran
                         @elseif (Request::url() == route('laporan.jurnalumum'))
@@ -221,7 +221,7 @@
                                         <a href="{{ route('penjualan.index') }}">Penjualan Produk</a>
                                     </li>
                                     <li>
-                                        <a href="{{ route('pendapatan.index') }}">Pendapatan</a>
+                                        <a href="{{ route('pendapatan.index') }}">Pendapatan Jasa</a>
                                     </li>
                                     <li>
                                         <a href="{{ route('pengeluaran.index') }}">Pengeluaran</a>

@@ -125,6 +125,15 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ], [
                 'id' => 12,
+                'kode_akun' => '511',
+                'nama_akun' => 'Harga Pokok Penjualan',
+                'header_akun' => 5,
+                'user_id_created' => 1,
+                'user_id_updated' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],[
+                'id' => 13,
                 'kode_akun' => '501',
                 'nama_akun' => 'Beban Listrik',
                 'header_akun' => 5,
@@ -133,7 +142,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'id' => 13,
+                'id' => 14,
                 'kode_akun' => '502',
                 'nama_akun' => 'Beban Sewa',
                 'header_akun' => 5,
@@ -142,7 +151,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'id' => 14,
+                'id' => 15,
                 'kode_akun' => '503',
                 'nama_akun' => 'Beban Air',
                 'header_akun' => 5,
@@ -151,7 +160,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'id' => 15,
+                'id' => 16,
                 'kode_akun' => '504',
                 'nama_akun' => 'Beban Wifi',
                 'header_akun' => 5,
@@ -160,7 +169,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'id' => 16,
+                'id' => 17,
                 'kode_akun' => '505',
                 'nama_akun' => 'Beban Lainnya',
                 'header_akun' => 5,

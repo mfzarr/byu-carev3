@@ -163,10 +163,22 @@ class PenjualanController extends Controller
     {
         $id_barang = $request->id_barang;
         $total = $request->total;
+        $tgl_penjualan = $request->tgl_penjualan ?? now()->format('Y-m-d');
 
-        $diskon = Diskon::where('id_barang', $id_barang)
-            ->where('min_transaksi', '<=', $total)
-            ->orderBy('persentase_diskon', 'desc')
+        $query = Diskon::where('id_barang', $id_barang)
+            ->where('min_transaksi', '<=', $total);
+
+        // Tambahkan kondisi untuk diskon dengan periode
+        $query->where(function ($q) use ($tgl_penjualan) {
+            $q->whereNull('tanggal_mulai') // Diskon tanpa periode
+                ->orWhere(function ($q2) use ($tgl_penjualan) {
+                    // Diskon dengan periode yang sesuai
+                    $q2->where('tanggal_mulai', '<=', $tgl_penjualan)
+                        ->where('tanggal_selesai', '>=', $tgl_penjualan);
+                });
+        });
+
+        $diskon = $query->orderBy('max_diskon', 'desc')
             ->first();
 
         if ($diskon) {
@@ -218,7 +230,7 @@ class PenjualanController extends Controller
 
             $diskon = Diskon::where('id_barang', $request->id_barang)
                 ->where('min_transaksi', '<=', $total)
-                ->orderBy('persentase_diskon', 'desc')
+                ->orderBy('max_diskon', 'desc')
                 ->first();
 
             $diskon_nominal = 0;
@@ -287,7 +299,7 @@ class PenjualanController extends Controller
             $check_akun_kas = Coa::where('kode_akun', '101')->first();
 
             $check_akun_diskon_penjualan = Coa::where('kode_akun', '411')->first();
-            
+
             $check_akun_penjualan = Coa::where('kode_akun', '406')->first();
 
             if (!$check_akun_kas) {

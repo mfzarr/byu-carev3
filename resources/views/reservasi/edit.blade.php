@@ -93,7 +93,9 @@
                                 <label for="ruangan" class="form-label">Ruangan</label>
                                 <select class="form-select @error('ruangan') border border-danger @enderror"
                                     id="ruangan" name="ruangan" required>
-                                    <option value="" {{ old('ruangan', $reservasi->ruangan) == null ? 'selected' : '' }}> ==>> Pilih Ruangan <<== </option>
+                                    <option value=""
+                                        {{ old('ruangan', $reservasi->ruangan) == null ? 'selected' : '' }}> ==>> Pilih
+                                        Ruangan <<== </option>
                                     <option value="Ruangan 1"
                                         {{ old('ruangan', $reservasi->ruangan) == 'Ruangan 1' ? 'selected' : '' }}>
                                         Ruangan 1</option>
@@ -139,7 +141,13 @@
                             <!-- Hidden status field with current value -->
                             <input type="hidden" name="status" value="{{ $reservasi->status }}" />
 
-                            <input type="submit" class="btn btn-primary" value="Update" />
+                            @if (!$reservasi->ruangan || !$reservasi->waktu_selesai)
+                                <input type="hidden" name="status" value="Disetujui" />
+                                <input type="submit" class="btn btn-primary" value="Jadwalkan" />
+                            @else
+                                <input type="hidden" name="status" value="{{ $reservasi->status }}" />
+                                <input type="submit" class="btn btn-primary" value="Update" />
+                            @endif
                             <a href="{{ route('reservasi.index') }}" class="btn btn-secondary">Cancel</a>
                         </form>
 

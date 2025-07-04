@@ -86,7 +86,7 @@
                                         </td>
                                         <td>{{ $d->nama_pelanggan }}</td>
                                         <td>{{ $d->nama_layanan }}</td>
-                                    
+
                                         <td>{{ $d->ruangan ? $d->ruangan : '-' }}</td>
                                         <td>Rp. {{ number_format($d->harga_layanan, 0, ',', '.') }}</td>
                                         <td>{{ $d->status == 'pending' ? '-' : ucwords(str_replace('_', ' ', $d->status)) }}
@@ -101,24 +101,18 @@
                                                     class="btn btn-danger btn-circle">
                                                     Batal
                                                 </a>
-                                            |
                                             @elseif ($d->status == 'Disetujui')
                                                 <a href="{{ route('reservasi.cancel', $d->id) }}"
                                                     class="btn btn-danger btn-circle">
                                                     Batal
-                                                </a>    
+                                                </a>
                                             @endif
-                                            |
-                                            <a href="{{ route('reservasi.edit', $d->id) }}"
-                                                class="btn btn-success btn-circle {{ in_array($d->status, ['Selesai', 'Batal']) ? 'disabled' : '' }}">
-                                                Edit
-                                            </a>
-
-                                            {{-- <a onclick="deleteConfirm(this); return false;" href="#"
-                                                data-id="{{ $d->id }}" data-kode="{{ $d->no_reservasi }}"
-                                                class="btn btn-danger btn-circle">
-                                                Hapus
-                                            </a> --}}
+                                            @if (!in_array($d->status, ['pending', 'Selesai', 'Batal']))
+                                                <a href="{{ route('reservasi.edit', $d->id) }}"
+                                                    class="btn btn-success btn-circle">
+                                                    Edit
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -211,20 +205,20 @@
                 document.getElementById('filter_date').value = savedDate;
             }
 
-                        document.querySelectorAll('a[href*="reservasi/cancel"]').forEach(button => {
+            document.querySelectorAll('a[href*="reservasi/cancel"]').forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const reservationId = this.getAttribute('href').split('/').pop();
                     const row = this.closest('tr');
                     const noReservasi = row.cells[0].textContent;
                     const namaPelanggan = row.cells[4].textContent;
-                    
+
                     // Set up the confirmation modal
-                    document.getElementById("xid-cancel").innerHTML = 
+                    document.getElementById("xid-cancel").innerHTML =
                         `Reservasi <b>${noReservasi}</b> atas nama <b>${namaPelanggan}</b> akan dibatalkan. Lanjutkan?`;
-                    
+
                     document.getElementById('btn-cancel-confirm').href = this.getAttribute('href');
-                    
+
                     // Show the modal
                     var cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
                     cancelModal.show();

@@ -1,4 +1,4 @@
-<x-app-layout :title="'Pendapatan'">
+<x-app-layout :title="'Pendapatan Jasa'">
     <div class="container-fluid">
 
         <div class="row">

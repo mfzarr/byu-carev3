@@ -115,6 +115,7 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('/pendapatan/detail/{id}', [PendapatanController::class, 'detail'])->name('pendapatan.detail');
     Route::post('/pendapatan/storedetail', [PendapatanController::class, 'storedetail'])->name('pendapatan.storedetail');
     Route::get('/pendapatan/destroydetail/{id}', [PendapatanController::class, 'destroydetail'])->name('pendapatan.destroydetail');
+    Route::post('/pendapatan/get-diskon', [PendapatanController::class, 'getDiskonPendapatan'])->name('pendapatan.getDiskon');
 
     // Pengeluaran
     Route::get('/pengeluaran/destroy/{id}', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');

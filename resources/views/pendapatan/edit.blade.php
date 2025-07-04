@@ -1,4 +1,4 @@
-<x-app-layout :title="'Edit Pendapatan'">
+<x-app-layout :title="'Edit Pendapatan Jasa'">
     <div class="container-fluid">
 
         <div class="row">

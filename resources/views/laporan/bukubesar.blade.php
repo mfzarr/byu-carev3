@@ -26,7 +26,7 @@
                                                     <option value="" disabled selected>- - - Pilih Akun - - -
                                                     </option>
                                                     @foreach ($akun as $ak)
-                                                        <option value="{{ $ak->id }}-{{ $ak->nama_akun }}">
+                                                        <option value="{{ $ak->id }}-{{ $ak->nama_akun }}-{{ $ak->kode_akun }}">
                                                             {{ $ak->nama_akun }}</option>
                                                     @endforeach
                                                 </select>
@@ -51,27 +51,31 @@
                                             <div id="xperiode"></div>
                                         </div>
                                     </div>
-
+                                    <br>
                                     <div class="responsive-table-plugin">
                                         <div class="table-rep-plugin">
                                             <div class="table-responsive" data-pattern="priority-columns">
+                                                <div class="row mb-3">
+                                                    <div class="col-6 text-start">
+                                                        <div id="namaAkun"></div>
+                                                    </div>
+                                                    <div class="col-6 text-end">
+                                                        <div id="noAkun"></div>
+                                                    </div>
+                                                </div>
                                                 <table id="report" class="table table-bordered nowrap">
                                                     <thead class="thead-dark">
                                                         <tr>
-                                                            <th rowspan="2">Tanggal</th>
-                                                            <th rowspan="2">Nama Akun</th>
-                                                            <th rowspan="2" class="text-center">Debet</th>
-                                                            <th rowspan="2" class="text-center">Kredit</th>
-                                                            <th colspan="2" class="text-center">Saldo </th>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="text-center">Debet</th>
+                                                            <th class="text-center">Tanggal</th>
+                                                            <th class="text-center">Keterangan</th>
+                                                            <th class="text-center">Ref</th>
+                                                            <th class="text-center">Debit</th>
                                                             <th class="text-center">Kredit</th>
+                                                            <th class="text-center">Saldo Debit</th>
+                                                            <th class="text-center">Saldo Kredit</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-
-                                                    </tbody>
+                                                    <tbody></tbody>
                                                 </table>
                                             </div>
                                         </div>
@@ -93,6 +97,25 @@
 
     <!-- Proses Jurnal -->
     <script>
+        // Set default value untuk input periode ke bulan sekarang
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current date
+            const today = new Date();
+            // Format to YYYY-MM
+            const year = today.getFullYear();
+            // Month is 0-indexed in JavaScript, so add 1 and pad with leading zero if needed
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            
+            // Set the value of the period input
+            document.getElementById('periode').value = `${year}-${month}`;
+            
+            // If an account is selected, process the data
+            const accountSelect = document.getElementById('id_akun');
+            if (accountSelect.value) {
+                proses();
+            }
+        });
+
         // fungsi number format
         function number_format(number, decimals, decPoint, thousandsSep) {
             number = (number + '').replace(/[^0-9+\-Ee.]/g, '')
@@ -168,24 +191,32 @@
             return hasil;
         }
 
+        // fungsi untuk format tanggal dari YYYY-MM-DD menjadi DD-MMM
+        function formatTanggal(tanggal) {
+            // Format: YYYY-MM-DD to DD-MMM
+            const date = new Date(tanggal);
+            const day = date.getDate();
+            const month = date.toLocaleString('default', { month: 'short' });
+            return day + "-" + month;
+        }
+
         // fungsi untuk memproses perubahan nilai pada elemen input
         function proses() {
-
             // ambil nilai month dan year dari elemen input dalam format YYYY-MM
             var periode = document.getElementById("periode").value;
-            var akun = document.getElementById("id_akun").value; //format 111-Kas
-            var position = akun.search("-"); //mencari posisi indeks "-"
-            var idakun = akun.substring(0, position); //mendapatkan idakun
-            var namaakun = akun.substring(position + 1); //mendapatkan namakun
+            var akun = document.getElementById("id_akun").value; //format 111-Kas-101
+            var parts = akun.split("-");
+            var idakun = parts[0]; // ID akun
+            var namaakun = parts[1]; // Nama akun
+            var kodeakun = parts[2]; // Kode akun
             var periode_tampil = rubah(periode);
             var url = "{{ url('laporan/viewdatabukubesar/') }}";
             var url2 = url.concat("/", periode, "/", idakun);
-            // console.log(pilihan);
+            
             $.ajax({
                 type: "GET",
                 url: url2,
                 success: function(response) {
-                    // console.log(response);
                     if (response.status == 404) {
                         // beri alert kalau gagal
                         Swal.fire({
@@ -196,171 +227,145 @@
                             background: '#2B333E',
                         });
                     } else {
-                        // console.log(response);
-                        // xperusahaan
+                        // Set header information
                         var tebal = "<b>";
-
                         var akhirtebal = "</b>";
 
-                        //xperiode
-                        var awalanperiode = "Periode ";
-                        document.getElementById("xperiode").innerHTML = tebal.concat(awalanperiode,
-                            periode_tampil, akhirtebal);
-
-                        // xbukubesar
-                        var awalanbukubesar = "Buku Besar ";
-                        // console.log(tebal.concat(awalanbukubesar,namaakun,akhirtebal));
-                        document.getElementById("xbukubesar").innerHTML = tebal.concat(awalanbukubesar,
-                            namaakun, akhirtebal);
-
-                        var nama = "ZENITHA BEAUTY CARE";
+                        var nama = "Zenitha Beauty Care";
                         document.getElementById("xnama").innerHTML = tebal.concat(nama, akhirtebal);
-
+                        
+                        var awalanbukubesar = "Buku Besar";
+                        document.getElementById("xbukubesar").innerHTML = tebal.concat(awalanbukubesar, akhirtebal);
+                        
+                        document.getElementById("xperiode").innerHTML = tebal.concat(periode_tampil, akhirtebal);
+                        
+                        // Set nama akun dan no akun
+                        document.getElementById("namaAkun").innerHTML = tebal.concat("Nama Akun : ", namaakun, akhirtebal);
+                        document.getElementById("noAkun").innerHTML = tebal.concat("No Akun : ", kodeakun, akhirtebal);
 
                         // mengisi tabel
                         $('tbody').html("");
+                        
                         // untuk saldo awal
                         if (response.posisi == 'd') {
                             $('tbody').append(
                                 '<tr>\
-                                                                                                                        <td>-</td>\
-                                                                                                                        <td><b>Saldo Awal</b></td>\
-                                                                                                                        <td>-</td>\
-                                                                                                        <td>-</td>\
-                                                                                                        <td style="text-align:right;">Rp ' +
-                                number_format(
-                                    response
-                                    .saldoawal) + '</td>\
-                                                                                                        <td style="text-align:right;">-</td>\
-                                                                                                        \</tr>');
+                                    <td></td>\
+                                    <td>Saldo Awal</td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td style="text-align:right;">Rp ' + number_format(response.saldoawal) + '</td>\
+                                    <td></td>\
+                                </tr>'
+                            );
                             var saldo_debet = response.saldoawal;
                             var saldo_kredit = 0;
                         } else {
                             $('tbody').append(
                                 '<tr>\
-                                                                                                        <td>-</td>\
-                                                                                                        <td><b>Saldo Awal</b></td>\
-                                                                                                        <td>-</td>\
-                                                                                                        <td>-</td>\
-                                                                                                        <td style="text-align:right;">-</td>\
-                                                                                                        <td style="text-align:right;">Rp ' +
-                                number_format(
-                                    response
-                                    .saldoawal) + '</td>\
-                                                                                                        \</tr>');
+                                    <td></td>\
+                                    <td>Saldo Awal</td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td style="text-align:right;">Rp ' + number_format(response.saldoawal) + '</td>\
+                                </tr>'
+                            );
                             var saldo_debet = 0;
                             var saldo_kredit = response.saldoawal;
                         }
 
                         // untuk isi tabel
-                        var d = 0;
-                        var c = 0
                         $.each(response.bukubesar, function(key, item) {
-                            var tgljurnal = item.tgl_jurnal.substring(0, 10); //YYYY-MM-DD
+                            var tgljurnal = formatTanggal(item.tgl_jurnal.substring(0, 10)); // Format to DD-MMM
+                            var ref = item.no_jurnal.substring(0, 10); // Get first 4 characters as reference
 
                             if ((response.posisi == 'd') && (item.posisi_dr_cr == 'd')) {
                                 saldo_debet = saldo_debet + item.nominal;
-                                d = d + item.nominal;
                                 $('tbody').append(
                                     '<tr>\
-                                                                                                            <td class="text-center">' +
-                                    tgljurnal + '</td>\
-                                                                                                            <td>' + item
-                                    .nama_akun +
-                                    '</td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        item
-                                        .nominal) +
-                                    '</td>\
-                                                                                                            <td></td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        saldo_debet) + '</td>\
-                                                                                                            <td style="text-align:right;">-</td>\
-                                                                                                            \</tr>');
+                                        <td class="text-center">' + tgljurnal + '</td>\
+                                        <td>' + item.nama_akun + '</td>\
+                                        <td class="text-center">' + ref + '</td>\
+                                        <td style="text-align:right;">Rp' + number_format(item.nominal) + '</td>\
+                                        <td></td>\
+                                        <td style="text-align:right;">' + (saldo_debet < 0 ? '- Rp' + number_format(Math.abs(saldo_debet)) : 'Rp' + number_format(saldo_debet)) + '</td>\
+                                        <td></td>\
+                                    </tr>'
+                                );
                             } else if ((response.posisi == 'd') && (item.posisi_dr_cr == 'c')) {
                                 saldo_debet = saldo_debet - item.nominal;
-                                c = c + item.nominal;
                                 $('tbody').append(
                                     '<tr>\
-                                                                                                            <td class="text-center">' +
-                                    tgljurnal + '</td>\
-                                                                                                            <td>' + item
-                                    .nama_akun +
-                                    '</td>\
-                                                                                                            <td></td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        item
-                                        .nominal) +
-                                    '</td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        saldo_debet) + '</td>\
-                                                                                                            <td style="text-align:right;">-</td>\
-                                                                                                            \</tr>');
+                                        <td class="text-center">' + tgljurnal + '</td>\
+                                        <td>' + item.nama_akun + '</td>\
+                                        <td class="text-center">' + ref + '</td>\
+                                        <td></td>\
+                                        <td style="text-align:right;">Rp' + number_format(item.nominal) + '</td>\
+                                        <td style="text-align:right;">' + (saldo_debet < 0 ? '- Rp' + number_format(Math.abs(saldo_debet)) : 'Rp' + number_format(saldo_debet)) + '</td>\
+                                        <td></td>\
+                                    </tr>'
+                                );
                             } else if ((response.posisi == 'c') && (item.posisi_dr_cr == 'd')) {
                                 saldo_kredit = saldo_kredit - item.nominal;
-                                c = c + item.nominal;
                                 $('tbody').append(
                                     '<tr>\
-                                                                                                            <td class="text-center">' +
-                                    tgljurnal + '</td>\
-                                                                                                            <td>' + item
-                                    .nama_akun +
-                                    '</td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        item
-                                        .nominal) +
-                                    '</td>\
-                                                                                                            <td></td>\
-                                                                                                            <td style="text-align:right;"></td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        saldo_kredit) + '</td>\
-                                                                                                            \</tr>');
+                                        <td class="text-center">' + tgljurnal + '</td>\
+                                        <td>' + item.nama_akun + '</td>\
+                                        <td class="text-center">' + ref + '</td>\
+                                        <td style="text-align:right;">Rp' + number_format(item.nominal) + '</td>\
+                                        <td></td>\
+                                        <td></td>\
+                                        <td style="text-align:right;">' + (saldo_kredit < 0 ? '- Rp' + number_format(Math.abs(saldo_kredit)) : 'Rp' + number_format(saldo_kredit)) + '</td>\
+                                    </tr>'
+                                );
                             } else if ((response.posisi == 'c') && (item.posisi_dr_cr == 'c')) {
                                 saldo_kredit = saldo_kredit + item.nominal;
-                                c = c + item.nominal;
                                 $('tbody').append(
                                     '<tr>\
-                                                                                                            <td class="text-center">' +
-                                    tgljurnal + '</td>\
-                                                                                                            <td>' + item
-                                    .nama_akun +
-                                    '</td>\
-                                                                                                            <td></td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        item
-                                        .nominal) +
-                                    '</td>\
-                                                                                                            <td style="text-align:right;"></td>\
-                                                                                                            <td style="text-align:right;">Rp ' +
-                                    number_format(
-                                        saldo_kredit) + '</td>\
-                                                                                                            \</tr>');
+                                        <td class="text-center">' + tgljurnal + '</td>\
+                                        <td>' + item.nama_akun + '</td>\
+                                        <td class="text-center">' + ref + '</td>\
+                                        <td></td>\
+                                        <td style="text-align:right;">Rp' + number_format(item.nominal) + '</td>\
+                                        <td></td>\
+                                        <td style="text-align:right;">' + (saldo_kredit < 0 ? '- Rp' + number_format(Math.abs(saldo_kredit)) : 'Rp' + number_format(saldo_kredit)) + '</td>\
+                                    </tr>'
+                                );
                             }
                         });
 
                         // footer saldo akhir
                         $('tbody').append(
                             '<tr>\
-                                                                                                    <td colspan="4" style="text-align: center;"><b>Saldo Akhir</b></td>\
-                                                                                                    <td style="text-align:right;">Rp ' +
-                            number_format(
-                                saldo_debet) +
-                            '</td>\
-                                                                                                    <td style="text-align:right;">Rp ' +
-                            number_format(
-                                saldo_kredit) + '</td>\
-                                                                                                    \</tr>');
+                                <td colspan="3" style="text-align: center;"><b>Saldo Akhir</b></td>\
+                                <td></td>\
+                                <td></td>\
+                                <td style="text-align:right;">' + (response.posisi == 'd' ? (saldo_debet < 0 ? '- Rp' + number_format(Math.abs(saldo_debet)) : 'Rp' + number_format(saldo_debet)) : '') + '</td>\
+                                <td style="text-align:right;">' + (response.posisi == 'c' ? (saldo_kredit < 0 ? '- Rp' + number_format(Math.abs(saldo_kredit)) : 'Rp' + number_format(saldo_kredit)) : '') + '</td>\
+                            </tr>'
+                        );
                     }
                 }
             });
         }
+
+        // Auto-load data when page loads if period and account are selected
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default period to current month
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('periode').value = `${year}-${month}`;
+            
+            // If an account is selected, process the data
+            const accountSelect = document.getElementById('id_akun');
+            if (accountSelect.value) {
+                proses();
+            }
+        });
     </script>
     <!-- Akhir Proses Jurnal -->
 </x-app-layout>
