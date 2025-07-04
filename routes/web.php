@@ -153,4 +153,11 @@ Route::middleware('auth')->group(function () {
     // Routes lainnya...
 });
 
+// Admin notification routes
+Route::prefix('admin')->group(function () {
+    Route::get('/notifications', [NotifikasiController::class, 'getAdminNotifications']);
+    Route::post('/notifications/mark-as-read', [NotifikasiController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotifikasiController::class, 'markAllAsRead']);
+});
+
 require __DIR__ . '/auth.php';

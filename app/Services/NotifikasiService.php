@@ -11,7 +11,8 @@ class NotifikasiService
     public static function createReservasiNotification($reservasi_id, $user_id)
     {
         $reservasi = Reservasi::find($reservasi_id);
-        
+
+        // Notifikasi untuk user yang membuat reservasi
         Notifikasi::create([
             'judul' => 'Reservasi Berhasil Dibuat',
             'pesan' => "Reservasi dengan nomor {$reservasi->no_reservasi} berhasil dibuat. Menunggu persetujuan admin.",
@@ -19,15 +20,28 @@ class NotifikasiService
             'user_id' => $user_id,
             'reservasi_id' => $reservasi_id,
         ]);
+
+        // Notifikasi untuk admin (ambil semua user dengan role admin)
+        $adminUsers = User::where('role', 'admin')->get();
+
+        foreach ($adminUsers as $admin) {
+            Notifikasi::create([
+                'judul' => 'Reservasi Baru',
+                'pesan' => "Ada reservasi baru dengan nomor {$reservasi->no_reservasi} dari pelanggan. Silakan tinjau.",
+                'jenis' => 'reservasi_created',
+                'user_id' => $admin->id,
+                'reservasi_id' => $reservasi_id,
+            ]);
+        }
     }
 
     public static function approveReservasiNotification($reservasi_id)
     {
         $reservasi = Reservasi::find($reservasi_id);
-        
+
         // Kirim notifikasi ke user yang membuat reservasi
         $user_id = $reservasi->user_id_created;
-        
+
         Notifikasi::create([
             'judul' => 'Reservasi Disetujui',
             'pesan' => "Reservasi dengan nomor {$reservasi->no_reservasi} telah disetujui, silahkan datang pada waktu yang telah ditentukan. Terima kasih!",
@@ -40,10 +54,10 @@ class NotifikasiService
     public static function cancelReservasiNotification($reservasi_id)
     {
         $reservasi = Reservasi::find($reservasi_id);
-        
+
         // Kirim notifikasi ke user yang membuat reservasi
         $user_id = $reservasi->user_id_created;
-        
+
         Notifikasi::create([
             'judul' => 'Reservasi Dibatalkan',
             'pesan' => "Reservasi dengan nomor {$reservasi->no_reservasi} telah dibatalkan.",

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\NotifikasiService;
+use App\Models\Notifikasi;
 use Illuminate\Http\Request;
+use App\Services\NotifikasiService;
 use Illuminate\Support\Facades\Auth;
 
 class NotifikasiController extends Controller
@@ -32,5 +33,27 @@ class NotifikasiController extends Controller
         NotifikasiService::markAllAsRead(Auth::id());
 
         return response()->json(['success' => true]);
+    }
+
+    public function getAdminNotifications()
+    {
+        // Get notifications for admin users (you might want to adjust this query)
+        $notifications = Notifikasi::whereHas('user', function ($query) {
+            $query->where('role', 'admin');
+        })
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        $unreadCount = Notifikasi::whereHas('user', function ($query) {
+            $query->where('role', 'admin');
+        })
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount
+        ]);
     }
 }

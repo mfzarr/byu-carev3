@@ -57,6 +57,34 @@
                     </a>
                 </li>
 
+                <li class="dropdown notification-list">
+                    <a class="nav-link dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown"
+                        href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <i class="fe-bell"></i>
+                        <!-- Notification Badge -->
+                        <span class="badge bg-danger rounded-circle noti-icon-badge"
+                            id="admin-notification-badge">0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-lg">
+                        <!-- Notification Dropdown -->
+                        <div class="dropdown-item noti-title">
+                            <h5 class="m-0">
+                                <span class="float-end">
+                                    <a href="javascript: void(0);" class="text-dark" id="admin-mark-all-read">
+                                        <small>Tandai Semua Dibaca</small>
+                                    </a>
+                                </span>Notifikasi
+                            </h5>
+                        </div>
+                        <div class="px-3" style="max-height: 300px; overflow-y: auto;" id="admin-notification-list">
+                            <!-- Notifications will be loaded here -->
+                            <div class="text-center py-4">
+                                <span class="text-muted">Tidak ada notifikasi</span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
                         href="#" role="button" aria-haspopup="false" aria-expanded="false">
@@ -355,6 +383,122 @@
             input.addEventListener('input', function(e) {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Load admin notifications
+            function loadAdminNotifications() {
+                $.get('/admin/notifications', function(data) {
+                    displayAdminNotifications(data.notifications);
+                    updateAdminNotificationBadge(data.unread_count);
+                });
+            }
+
+            // Display notifications
+            function displayAdminNotifications(notifications) {
+                const $notificationList = $('#admin-notification-list');
+
+                if (notifications.length === 0) {
+                    $notificationList.html(
+                        '<div class="text-center py-4"><span class="text-muted">Tidak ada notifikasi</span></div>'
+                        );
+                    return;
+                }
+
+                let html = '';
+                notifications.forEach(notification => {
+                    const isRead = notification.is_read;
+                    const bgClass = isRead ? '' : 'bg-light';
+
+                    html += `
+                    <div class="dropdown-item ${bgClass} admin-notification-item" data-id="${notification.id}" style="cursor: pointer;">
+                        <div class="d-flex">
+                            <div class="flex-grow-1">
+                                <h6 class="mt-0 mb-1">${notification.judul}</h6>
+                                <div class="font-size-12 text-muted">
+                                    <p class="mb-0">${notification.pesan}</p>
+                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> ${formatAdminDate(notification.created_at)}</p>
+                                </div>
+                            </div>
+                            ${!isRead ? '<div class="align-self-center"><i class="mdi mdi-circle text-primary font-size-10"></i></div>' : ''}
+                        </div>
+                    </div>
+                `;
+                });
+
+                $notificationList.html(html);
+
+                // Add click event to mark individual notifications as read
+                $('.admin-notification-item').on('click', function() {
+                    const notificationId = $(this).data('id');
+                    markAdminNotificationAsRead(notificationId);
+                });
+            }
+
+            // Update notification badge
+            function updateAdminNotificationBadge(count) {
+                const $badge = $('#admin-notification-badge');
+                if (count > 0) {
+                    $badge.text(count).show();
+                } else {
+                    $badge.hide();
+                }
+            }
+
+            // Mark individual notification as read
+            function markAdminNotificationAsRead(notificationId) {
+                $.ajax({
+                    url: '/admin/notifications/mark-as-read',
+                    method: 'POST',
+                    data: {
+                        id: notificationId
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            loadAdminNotifications();
+                        }
+                    }
+                });
+            }
+
+            // Format date
+            function formatAdminDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // Mark all as read
+            $('#admin-mark-all-read').on('click', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/admin/notifications/mark-all-read',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            loadAdminNotifications();
+                        }
+                    }
+                });
+            });
+
+            // Load notifications on page load
+            loadAdminNotifications();
+
+            // Refresh notifications every 30 seconds
+            setInterval(loadAdminNotifications, 30000);
         });
     </script>
     @stack('scripts')
