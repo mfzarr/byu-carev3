@@ -209,28 +209,26 @@ class ReservasiController extends Controller
 
     public function approve(string $id)
     {
-        try {
-            // Check if the reservation has ruangan and waktu_selesai
-            $reservasi = Reservasi::find($id);
+        $reservasi = Reservasi::find($id);
 
-            if (!$reservasi->ruangan || !$reservasi->waktu_selesai) {
-                if (request()->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Harap lengkapi data ruangan dan waktu selesai terlebih dahulu!'
-                    ]);
-                }
-                return redirect()->route('reservasi.index')
-                    ->with('error', 'Harap lengkapi data ruangan dan waktu selesai terlebih dahulu!');
+        if (!$reservasi->ruangan || !$reservasi->waktu_selesai) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Harap lengkapi data ruangan dan waktu selesai terlebih dahulu!'
+                ]);
             }
+            return redirect()->route('reservasi.edit', $id)
+                ->with('warning', 'Harap lengkapi data ruangan dan waktu selesai terlebih dahulu!');
+        }
 
+        try {
             Reservasi::where('id', $id)->update([
                 'status' => 'Disetujui',
                 'user_id_updated' => Auth::user()->id,
                 'updated_at' => now(),
             ]);
 
-            // Tambahkan notifikasi setelah reservasi disetujui
             NotifikasiService::approveReservasiNotification($id);
 
             if (request()->ajax()) {
