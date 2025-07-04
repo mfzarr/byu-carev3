@@ -153,11 +153,11 @@ class ReservasiController extends Controller
             'ruangan.in' => 'Ruangan harus Ruangan 1, Ruangan 2 atau Ruangan 3',
         ]);
 
-        // Check for overlapping schedules in the same room
+        // Check for overlapping schedules
         $existingReservation = Reservasi::where('ruangan', $request->ruangan)
             ->where('tgl_reservasi', $request->tgl_reservasi)
-            ->where('id', '!=', $id) // Exclude current reservation
-            ->where('status', 'Disetujui') // Only check approved reservations
+            ->where('id', '!=', $id)
+            ->where('status', 'Disetujui')
             ->where(function ($query) use ($request) {
                 $query->whereBetween('waktu_mulai', [$request->waktu_mulai, $request->waktu_selesai])
                     ->orWhereBetween('waktu_selesai', [$request->waktu_mulai, $request->waktu_selesai])
@@ -175,6 +175,9 @@ class ReservasiController extends Controller
         }
 
         try {
+            $reservasi = Reservasi::find($id);
+            $isNewlyApproved = !$reservasi->ruangan && !$reservasi->waktu_selesai && $request->status == 'Disetujui';
+
             Reservasi::where('id', $id)->update([
                 'tgl_reservasi' => $request->tgl_reservasi,
                 'id_pelanggan' => $request->id_pelanggan,
@@ -186,6 +189,11 @@ class ReservasiController extends Controller
                 'user_id_updated' => Auth::user()->id,
                 'updated_at' => now(),
             ]);
+
+            // Kirim notifikasi jika ini adalah approval baru
+            if ($isNewlyApproved) {
+                NotifikasiService::approveReservasiNotification($id);
+            }
 
             return redirect()->route('reservasi.index')->with('success', 'Data berhasil diubah');
         } catch (\Exception $e) {
@@ -234,7 +242,7 @@ class ReservasiController extends Controller
             if (request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data berhasil Disetujui'
+                    'message' => 'Reservasi berhasil disetujui'
                 ]);
             }
             return redirect()->route('reservasi.index')->with('success', 'Data berhasil Disetujui');
@@ -242,14 +250,13 @@ class ReservasiController extends Controller
             if (request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data gagal Disetujui'
+                    'message' => 'Gagal menyetujui reservasi'
                 ]);
             }
             return redirect()->route('reservasi.index')->with('error', 'Data gagal Disetujui');
         }
     }
 
-    // Update method cancel:
     public function cancel(string $id)
     {
         try {
@@ -259,13 +266,12 @@ class ReservasiController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Tambahkan notifikasi setelah reservasi dibatalkan
             NotifikasiService::cancelReservasiNotification($id);
 
             if (request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data berhasil dicancel'
+                    'message' => 'Reservasi berhasil dibatalkan'
                 ]);
             }
             return redirect()->route('reservasi.index')->with('success', 'Data berhasil dicancel');
@@ -273,7 +279,7 @@ class ReservasiController extends Controller
             if (request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data gagal dicancel'
+                    'message' => 'Gagal membatalkan reservasi'
                 ]);
             }
             return redirect()->route('reservasi.index')->with('error', 'Data gagal dicancel');

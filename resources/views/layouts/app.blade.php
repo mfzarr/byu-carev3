@@ -402,7 +402,7 @@
                 if (notifications.length === 0) {
                     $notificationList.html(
                         '<div class="text-center py-4"><span class="text-muted">Tidak ada notifikasi</span></div>'
-                        );
+                    );
                     return;
                 }
 
@@ -499,6 +499,30 @@
 
             // Refresh notifications every 30 seconds
             setInterval(loadAdminNotifications, 30000);
+
+            function startAdminNotificationPolling() {
+                let isPolling = false;
+
+                function poll() {
+                    if (isPolling) return;
+                    isPolling = true;
+
+                    $.get('/admin/notifications', function(data) {
+                        displayAdminNotifications(data.notifications);
+                        updateAdminNotificationBadge(data.unread_count);
+                        isPolling = false;
+                    }).fail(() => isPolling = false);
+                }
+
+                // Poll setiap 5 detik
+                setInterval(poll, 5000);
+
+                // Poll segera setelah halaman dimuat
+                poll();
+            }
+
+            // Panggil fungsi polling
+            startAdminNotificationPolling();
         });
     </script>
     @stack('scripts')

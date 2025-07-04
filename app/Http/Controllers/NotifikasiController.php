@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Notifikasi;
-use Illuminate\Http\Request;
 use App\Services\NotifikasiService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NotifikasiController extends Controller
@@ -13,6 +12,17 @@ class NotifikasiController extends Controller
     {
         $notifications = NotifikasiService::getUserNotifications(Auth::id());
         $unreadCount = NotifikasiService::getUnreadCount(Auth::id());
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount
+        ]);
+    }
+
+    public function getAdminNotifications()
+    {
+        $notifications = NotifikasiService::getAdminNotifications();
+        $unreadCount = NotifikasiService::getAdminUnreadCount();
 
         return response()->json([
             'notifications' => $notifications,
@@ -33,27 +43,5 @@ class NotifikasiController extends Controller
         NotifikasiService::markAllAsRead(Auth::id());
 
         return response()->json(['success' => true]);
-    }
-
-    public function getAdminNotifications()
-    {
-        // Get notifications for admin users (you might want to adjust this query)
-        $notifications = Notifikasi::whereHas('user', function ($query) {
-            $query->where('role', 'admin');
-        })
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-        $unreadCount = Notifikasi::whereHas('user', function ($query) {
-            $query->where('role', 'admin');
-        })
-            ->where('is_read', false)
-            ->count();
-
-        return response()->json([
-            'notifications' => $notifications,
-            'unread_count' => $unreadCount
-        ]);
     }
 }

@@ -93,4 +93,22 @@ class NotifikasiService
             ->where('is_read', false)
             ->update(['is_read' => true]);
     }
+    public static function getAdminNotifications($limit = 10)
+    {
+        return Notifikasi::whereHas('user', function ($query) {
+            $query->where('role', 'admin');
+        })
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
+
+    public static function getAdminUnreadCount()
+    {
+        return Notifikasi::whereHas('user', function ($query) {
+            $query->where('role', 'admin');
+        })
+            ->where('is_read', false)
+            ->count();
+    }
 }

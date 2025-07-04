@@ -22,19 +22,22 @@
 
                 <!-- Notification Bell -->
                 <div class="relative">
-                    <button
-                        class="relative p-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+                    <button class="relative p-2 text-gray-600 hover:text-gray-800 focus:outline-none"
                         id="notification-btn">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                            </path>
                         </svg>
                         <!-- Notification Badge -->
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden" id="notification-badge">0</span>
+                        <span
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden"
+                            id="notification-badge">0</span>
                     </button>
-                    
+
                     <!-- Notification Dropdown -->
-                    <div class="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md border border-gray-200 hidden z-50" id="notification-dropdown">
+                    <div class="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md border border-gray-200 hidden z-50"
+                        id="notification-dropdown">
                         <div class="p-4 border-b border-gray-200">
                             <div class="flex justify-between items-center">
                                 <h3 class="text-lg font-semibold text-gray-800">Notifikasi</h3>
@@ -144,19 +147,20 @@
         // Mark all as read
         markAllReadBtn.addEventListener('click', () => {
             fetch('/notifications/mark-all-read', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadNotifications();
-                    updateNotificationBadge(0);
-                }
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadNotifications();
+                        updateNotificationBadge(0);
+                    }
+                });
         });
 
         // Load notifications
@@ -181,7 +185,7 @@
                 const isRead = notification.is_read;
                 const bgClass = isRead ? 'bg-gray-50' : 'bg-blue-50';
                 const textClass = isRead ? 'text-gray-600' : 'text-gray-800';
-                
+
                 html += `
                     <div class="p-4 border-b border-gray-100 ${bgClass} notification-item" data-id="${notification.id}">
                         <div class="flex justify-between items-start">
@@ -195,7 +199,7 @@
                     </div>
                 `;
             });
-            
+
             notificationList.innerHTML = html;
 
             // Add click event to mark individual notifications as read
@@ -220,19 +224,21 @@
         // Mark individual notification as read
         function markAsRead(notificationId) {
             fetch('/notifications/mark-as-read', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ id: notificationId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadNotifications();
-                }
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id: notificationId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadNotifications();
+                    }
+                });
         }
 
         // Format date
@@ -249,8 +255,35 @@
 
         // Load notifications on page load
         loadNotifications();
-        
+
         // Refresh notifications every 30 seconds
         setInterval(loadNotifications, 30000);
     }
+
+    function startUserNotificationPolling() {
+        let isPolling = false;
+
+        function poll() {
+            if (isPolling) return;
+            isPolling = true;
+
+            fetch('/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    displayNotifications(data.notifications);
+                    updateNotificationBadge(data.unread_count);
+                    isPolling = false;
+                })
+                .catch(() => isPolling = false);
+        }
+
+        // Poll setiap 5 detik
+        setInterval(poll, 5000);
+
+        // Poll segera setelah halaman dimuat
+        poll();
+    }
+
+    // Panggil fungsi polling
+    startUserNotificationPolling();
 </script>
