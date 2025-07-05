@@ -20,6 +20,8 @@ return new class extends Migration
             $table->bigInteger('max_diskon')->nullable();
             $table->unsignedBigInteger('id_barang')->nullable();
             $table->unsignedBigInteger('id_layanan')->nullable();
+            $table->date('tanggal_mulai')->nullable();
+            $table->date('tanggal_selesai')->nullable();
             $table->unsignedBigInteger('user_id_created');
             $table->unsignedBigInteger('user_id_updated');
             $table->timestamps();

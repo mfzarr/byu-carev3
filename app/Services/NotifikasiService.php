@@ -48,6 +48,7 @@ class NotifikasiService
             'jenis' => 'reservasi_approved',
             'user_id' => $user_id,
             'reservasi_id' => $reservasi_id,
+            
         ]);
     }
 

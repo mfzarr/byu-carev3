@@ -81,7 +81,7 @@ class DatabaseSeeder extends Seeder
             ], [
                 'id' => 7,
                 'kode_akun' => '106',
-                'nama_akun' => 'Pembelian',
+                'nama_akun' => 'Persediaan Barang Dagang',
                 'header_akun' => 1,
                 'user_id_created' => 1,
                 'user_id_updated' => 1,
