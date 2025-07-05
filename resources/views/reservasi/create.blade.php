@@ -42,7 +42,7 @@
                                     id="id_pelanggan" name="id_pelanggan" required>
                                     <option value="" disabled selected> ==>> Pilih Pelanggan <<== </option>
                                             @foreach ($pelanggan as $v)
-                                    <option value="{{ $v->id }}" {{ old('id_pelanggan') == $v->id ? 'selected' : '' }}>{{ $v->nama_pelanggan }}</option>
+                                    <option value="{{ $v->id }}" {{ old('id_pelanggan') == $v->id ? 'selected' : '' }}>{{ $v->kode_pelanggan }} - {{ $v->nama_pelanggan }}</option>
                                     @endforeach
                                 </select>
                                 @if ($errors->has('id_pelanggan'))

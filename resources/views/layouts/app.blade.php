@@ -156,6 +156,8 @@
                             Pendapatan Jasa
                         @elseif (Request::url() == route('pengeluaran.index'))
                             Pengeluaran
+                        @elseif (Request::url() == route('modal.index'))
+                            Modal
                         @elseif (Request::url() == route('laporan.jurnalumum'))
                             Jurnal
                         @elseif (Request::url() == route('laporan.bukubesar'))
@@ -253,6 +255,9 @@
                                     </li>
                                     <li>
                                         <a href="{{ route('pengeluaran.index') }}">Pengeluaran</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('modal.index') }}">Modal</a>
                                     </li>
                                 </ul>
                             </div>

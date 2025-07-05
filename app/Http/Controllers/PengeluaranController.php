@@ -77,7 +77,7 @@ class PengeluaranController extends Controller
 
             $jurnal_debit = Jurnal::create([
                 'no_jurnal' => Autocode::code('jurnal', 'no_jurnal', 'JU'),
-                'tgl_jurnal' => now(),
+                'tgl_jurnal' => $request->tgl_pengeluaran,
                 'posisi_dr_cr' => 'd',
                 'nominal' => $request->nominal,
                 'jenis_transaksi' => 'pengeluaran',
@@ -89,7 +89,7 @@ class PengeluaranController extends Controller
 
             Jurnal::create([
                 'no_jurnal' => $jurnal_debit->no_jurnal,
-                'tgl_jurnal' => now(),
+                'tgl_jurnal' => $request->tgl_pengeluaran,
                 'posisi_dr_cr' => 'c',
                 'nominal' => $request->nominal,
                 'jenis_transaksi' => 'pengeluaran',

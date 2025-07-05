@@ -47,7 +47,7 @@
                                             @foreach ($pelanggan as $v)
                                     <option value="{{ $v->id }}"
                                         {{ old('id_pelanggan', $reservasi->id_pelanggan) == $v->id ? 'selected' : '' }}>
-                                        {{ $v->nama_pelanggan }}</option>
+                                        {{ $v->kode_pelanggan }} - {{ $v->nama_pelanggan }}</option>
                                     @endforeach
                                 </select>
                                 @if ($errors->has('id_pelanggan'))

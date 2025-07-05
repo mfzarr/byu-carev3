@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CoaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ModalController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\JadwalController;
@@ -120,6 +121,10 @@ Route::middleware('auth', 'admin')->group(function () {
     // Pengeluaran
     Route::get('/pengeluaran/destroy/{id}', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
     Route::resource('pengeluaran', PengeluaranController::class);
+
+    // Modal
+    Route::get('/modal/destroy/{id}', [ModalController::class, 'destroy'])->name('modal.destroy');
+    Route::resource('modal', ModalController::class);
 
     // TRANSAKSI END
 

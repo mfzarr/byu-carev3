@@ -33,7 +33,8 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 2,
                 'kode_akun' => '2',
                 'nama_akun' => 'Kewajiban',
@@ -42,7 +43,8 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 3,
                 'kode_akun' => '3',
                 'nama_akun' => 'Modal',
@@ -51,7 +53,8 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 4,
                 'kode_akun' => '4',
                 'nama_akun' => 'Pendapatan',
@@ -60,7 +63,8 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 5,
                 'kode_akun' => '5',
                 'nama_akun' => 'Beban',
@@ -69,7 +73,8 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 6,
                 'kode_akun' => '101',
                 'nama_akun' => 'Kas',
@@ -78,7 +83,8 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 7,
                 'kode_akun' => '106',
                 'nama_akun' => 'Persediaan Barang Dagang',
@@ -87,8 +93,19 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
+            ],
+            [
                 'id' => 8,
+                'kode_akun' => '301',
+                'nama_akun' => 'Modal',
+                'header_akun' => 3,
+                'user_id_created' => 1,
+                'user_id_updated' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 9,
                 'kode_akun' => '401',
                 'nama_akun' => 'Pendapatan Jasa',
                 'header_akun' => 4,
@@ -96,8 +113,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 9,
+            ],
+            [
+                'id' => 10,
                 'kode_akun' => '406',
                 'nama_akun' => 'Penjualan',
                 'header_akun' => 4,
@@ -105,8 +123,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 10,
+            ],
+            [
+                'id' => 11,
                 'kode_akun' => '411',
                 'nama_akun' => 'Diskon Penjualan',
                 'header_akun' => 4,
@@ -114,8 +133,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 11,
+            ],
+            [
+                'id' => 12,
                 'kode_akun' => '412',
                 'nama_akun' => 'Diskon Pendapatan',
                 'header_akun' => 4,
@@ -123,8 +143,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 12,
+            ],
+            [
+                'id' => 13,
                 'kode_akun' => '511',
                 'nama_akun' => 'Harga Pokok Penjualan',
                 'header_akun' => 5,
@@ -132,8 +153,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],[
-                'id' => 13,
+            ],
+            [
+                'id' => 14,
                 'kode_akun' => '501',
                 'nama_akun' => 'Beban Listrik',
                 'header_akun' => 5,
@@ -141,8 +163,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 14,
+            ],
+            [
+                'id' => 15,
                 'kode_akun' => '502',
                 'nama_akun' => 'Beban Sewa',
                 'header_akun' => 5,
@@ -150,8 +173,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 15,
+            ],
+            [
+                'id' => 16,
                 'kode_akun' => '503',
                 'nama_akun' => 'Beban Air',
                 'header_akun' => 5,
@@ -159,8 +183,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 16,
+            ],
+            [
+                'id' => 17,
                 'kode_akun' => '504',
                 'nama_akun' => 'Beban Wifi',
                 'header_akun' => 5,
@@ -168,8 +193,9 @@ class DatabaseSeeder extends Seeder
                 'user_id_updated' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], [
-                'id' => 17,
+            ],
+            [
+                'id' => 18,
                 'kode_akun' => '505',
                 'nama_akun' => 'Beban Lainnya',
                 'header_akun' => 5,
