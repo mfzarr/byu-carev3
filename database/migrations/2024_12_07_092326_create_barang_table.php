@@ -16,7 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('kode_barang')->unique();
             $table->string('nama_barang');
-            $table->double('harga_satuan')->nullable();
+            $table->double('harga_satuan');
+            $table->double('harga_jual');
             $table->string('gambar_barang')->default('dummy-image.png');
             $table->unsignedBigInteger('id_vendor');
             $table->unsignedBigInteger('user_id_created');

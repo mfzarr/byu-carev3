@@ -44,13 +44,15 @@ class BarangController extends Controller
         $validated = $request->validate([
             'kode_barang' => 'required',
             'nama_barang' => 'required',
-            // 'harga_satuan' => 'required',
+            'harga_satuan' => 'required',
+            'harga_jual' => 'required',
             'gambar_barang' => 'file|image|mimes:jpeg,png,jpg|max:2048',
             'id_vendor' => 'required',
         ], [
             'kode_barang.required' => 'Kode Barang harus diisi',
             'nama_barang.required' => 'Nama Barang harus diisi',
-            // 'harga_satuan.required' => 'Harga Satuan harus diisi',
+            'harga_satuan.required' => 'Harga Satuan harus diisi',
+            'harga_jual.required' => 'Harga Jual harus diisi',
             'id_vendor.required' => 'Vendor harus diisi',
         ]);
 
@@ -67,7 +69,8 @@ class BarangController extends Controller
             Barang::create([
                 'kode_barang' => $request->kode_barang,
                 'nama_barang' => $request->nama_barang,
-                // 'harga_satuan' => $request->harga_satuan,
+                'harga_satuan' => $request->harga_satuan,
+                'harga_jual' => $request->harga_jual,
                 'gambar_barang' => $request->hasFile('gambar_barang') ? $file_name : 'dummy-image.png',
                 'id_vendor' => $request->id_vendor,
                 'user_id_created' => Auth::user()->id,
@@ -99,13 +102,15 @@ class BarangController extends Controller
         $validated = $request->validate([
             'kode_barang' => 'required',
             'nama_barang' => 'required',
-            // 'harga_satuan' => 'required',
+            'harga_satuan' => 'required',
+            'harga_jual' => 'required',
             'gambar_barang' => 'file|image|mimes:jpeg,png,jpg|max:2048',
             'id_vendor' => 'required',
         ], [
             'kode_barang.required' => 'Kode Barang harus diisi',
             'nama_barang.required' => 'Nama Barang harus diisi',
-            // 'harga_satuan.required' => 'Harga Satuan harus diisi',
+            'harga_satuan.required' => 'Harga Satuan harus diisi',
+            'harga_jual.required' => 'Harga Jual harus diisi',
             'id_vendor.required' => 'Vendor harus diisi',
         ]);
 
@@ -130,7 +135,8 @@ class BarangController extends Controller
             Barang::where('id', $id)->update([
                 'kode_barang' => $request->kode_barang,
                 'nama_barang' => $request->nama_barang,
-                // 'harga_satuan' => $request->harga_satuan,
+                'harga_satuan' => $request->harga_satuan,
+                'harga_jual' => $request->harga_jual,
                 'gambar_barang' => $request->hasFile('gambar_barang') ? $file_name : $barang->gambar_barang,
                 'id_vendor' => $request->id_vendor,
                 'user_id_updated' => Auth::user()->id,

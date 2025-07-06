@@ -37,7 +37,8 @@
                                 <tr>
                                     <th>Kode Barang</th>
                                     <th>Nama Barang</th>
-                                    {{-- <th>Harga Satuan</th> --}}
+                                    <th>Harga Satuan</th>
+                                    <th>Harga Jual</th>
                                     <th>Vendor</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -47,7 +48,8 @@
                                     <tr>
                                         <td>{{ $d->kode_barang }}</td>
                                         <td>{{ $d->nama_barang }}</td>
-                                        {{-- <td>Rp. {{ number_format($d->harga_satuan, 2, ',', '.') }}</td> --}}
+                                        <td>Rp. {{ number_format($d->harga_satuan, 0, ',', '.') }}</td>
+                                        <td>Rp. {{ number_format($d->harga_jual, 0, ',', '.') }}</td>
                                         <td>{{ $d->nama_vendor }}</td>
                                         <td>
                                             <a href="{{ route('barang.edit', $d->id) }}"
